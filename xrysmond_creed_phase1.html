@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XRYSMOND CREED</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+/*
+╔══════════════════════════════════════════════════════════════╗
+║  XRYSMOND CREED — COLOUR SYSTEM v3                          ║
+║                                                              ║
+║  VOID         #070709                                        ║
+║               near-pitch black · faint cool undertone       ║
+║               Applied: html/body background                  ║
+║                                                              ║
+║  CRYSTAL SILVER                                              ║
+║  #DEE4F4  sv-bright  Applied: all titles (h1,h2), CREED     ║
+║                       word, pattern names, bright UI         ║
+║  #909AAE  sv-body    Applied: all body paragraphs,           ║
+║                       descriptions, rule body text           ║
+║  #484D62  sv-dim     Applied: XRYSMOND label, pattern        ║
+║                       numbers, fragment eyebrows, back btn,  ║
+║                       disclaimer text, noise text            ║
+║  rgba(222,228,244,.055) sv-trace  Applied: all borders       ║
+║  rgba(222,228,244,.32)  sv-hi    Applied: hover borders      ║
+║                                                              ║
+║  VIOLET  #7B4FE8                                             ║
+║  Applied ONLY to: soul / alive / Waeven moments —           ║
+║    author span · truth callouts · rule titles (.rt)         ║
+║    Pattern 26 .pname · "Step Inside" text · cursor          ║
+║    Fragment I .ft + .fs · scrollbar thumb                   ║
+║                                                              ║
+║  SLATE  #6B7896  clinical distance                           ║
+║  Applied ONLY to: infection sections —                       ║
+║    "The infection" italic title · "Their patterns" header   ║
+║    .pline separators · .q quote left border                 ║
+║    .pivot top border                                         ║
+╚══════════════════════════════════════════════════════════════╝
+*/
+
+:root{
+  --void:       #070709;
+
+  --sv-bright:  #DEE4F4;
+  --sv-body:    #909AAE;
+  --sv-dim:     #484D62;
+  --sv-trace:   rgba(222,228,244,.055);
+  --sv-hi:      rgba(222,228,244,.32);
+
+  --violet:     #7B4FE8;
+  --violet-lo:  rgba(123,79,232,.26);
+  --violet-tr:  rgba(123,79,232,.07);
+
+  --slate:      #6B7896;
+  --slate-lo:   rgba(107,120,150,.30);
+
+  --fd:'Cormorant Garamond',Georgia,serif;
+  --fb:'DM Sans',system-ui,sans-serif;
+  --fm:'Space Mono','Courier New',monospace;
+}
+
+html,body{
+  width:100%;height:100%;
+  background:var(--void);
+  color:var(--sv-body);
+  font-family:var(--fb);
+  overflow:hidden;
+  cursor:none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CANVAS
+───────────────────────────────────────────────────────────── */
+#atmos{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  z-index:1;pointer-events:none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CURSOR
+   Crosshair always violet — transforms to sv-bright on
+   interactive hover. 0.1s snap ensures instant-feel response.
+───────────────────────────────────────────────────────────── */
+#cur{
+  position:fixed;
+  width:24px;height:24px;
+  z-index:999;pointer-events:none;
+  transform:translate(-50%,-50%);
+}
+#cur::before,#cur::after{
+  content:'';position:absolute;
+  top:50%;left:50%;
+  background:var(--violet);
+  transition:
+    width  .1s cubic-bezier(0.16,1,0.3,1),
+    height .1s cubic-bezier(0.16,1,0.3,1),
+    background .15s ease;
+}
+#cur::before{width:14px;height:1px;transform:translate(-50%,-50%)}
+#cur::after {width:1px;height:14px;transform:translate(-50%,-50%)}
+#cur.hl::before{width:22px;background:var(--sv-bright)}
+#cur.hl::after {height:22px;background:var(--sv-bright)}
+
+/* ─────────────────────────────────────────────────────────────
+   PHASES
+───────────────────────────────────────────────────────────── */
+.ph{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  z-index:10;display:flex;
+  align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .32s cubic-bezier(0.4,0,1,1);
+  will-change:opacity;
+}
+.ph.on{
+  opacity:1;pointer-events:all;
+  transition:opacity .42s cubic-bezier(0,0,0.2,1);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   INTRO
+───────────────────────────────────────────────────────────── */
+#pi{flex-direction:column}
+
+.xc-wrap{
+  display:flex;flex-direction:column;
+  align-items:center;gap:3.2rem;
+}
+#t1{
+  display:block;
+  font-family:var(--fd);
+  font-size:clamp(1.2rem,3.5vw,2.8rem);
+  font-weight:300;letter-spacing:.72em;
+  color:var(--sv-dim);line-height:1;
+  opacity:0;
+}
+#t2{
+  display:block;
+  font-family:var(--fd);
+  font-size:clamp(5rem,14vw,12rem);
+  font-weight:300;letter-spacing:.12em;
+  color:var(--sv-bright);line-height:.92;
+  margin-top:.08em;
+  opacity:0;
+}
+.ch{
+  display:inline-block;
+  opacity:0;transform:translateY(14px);
+  transition:
+    opacity   .38s cubic-bezier(0.16,1,0.3,1),
+    transform .38s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   "STEP INSIDE" BUTTON
+   No border. Just violet text + a persistent underline.
+   Underline brightens on hover. Text shifts to sv-bright.
+   Entrance animation fires once when .vis is applied.
+───────────────────────────────────────────────────────────── */
+#ent{
+  position:relative;
+  background:none;border:none;
+  color:var(--violet);
+  font-family:var(--fm);
+  font-size:.62rem;letter-spacing:.52em;
+  text-transform:uppercase;
+  padding:.55rem .1rem;cursor:none;
+  opacity:0;transform:translateY(8px);
+}
+#ent::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;height:1px;
+  background:var(--violet);
+  opacity:.28;
+  transition:opacity .12s ease;
+}
+#ent.vis{
+  opacity:1;transform:none;
+  transition:
+    opacity   .52s cubic-bezier(0.16,1,0.3,1),
+    transform .52s cubic-bezier(0.16,1,0.3,1),
+    color     .12s ease;
+}
+#ent:hover{color:var(--sv-bright)}
+#ent:hover::after{opacity:.65}
+#ent:active{opacity:.7}
+
+/* ─────────────────────────────────────────────────────────────
+   UNIVERSE
+───────────────────────────────────────────────────────────── */
+#pu{flex-direction:column;gap:2.5rem}
+
+.u-eyebrow{
+  font-family:var(--fm);font-size:.5rem;
+  letter-spacing:.68em;color:var(--sv-dim);
+  text-transform:uppercase;
+}
+.frags{
+  display:flex;flex-direction:column;
+  gap:1.2rem;width:min(100%,560px);
+  padding:0 1.8rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FRAGMENT CARDS
+   ::before  horizontal bright line sweeps along top edge
+             on hover — simulates crystal catching light
+   ::after   diagonal violet shimmer across card interior
+   Unlocked card border lifts from sv-trace → sv-hi on hover.
+   Locked cards: opacity .16, nearly dead.
+───────────────────────────────────────────────────────────── */
+.frag{
+  border:1px solid var(--sv-trace);
+  padding:1.8rem 2rem;
+  position:relative;cursor:none;
+  overflow:hidden;
+  will-change:transform;
+  transition:
+    border-color .12s ease,
+    transform    .22s cubic-bezier(0.16,1,0.3,1);
+}
+/* top-edge crystal light sweep */
+.frag::before{
+  content:'';
+  position:absolute;
+  top:-1px;left:0;
+  width:40%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--sv-bright),transparent);
+  opacity:0;
+  transform:translateX(-120%);
+  pointer-events:none;
+}
+/* diagonal shimmer */
+.frag::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(
+    112deg,
+    transparent 32%,
+    var(--violet-tr) 50%,
+    transparent 68%
+  );
+  transform:translateX(-115%);
+  transition:transform .5s cubic-bezier(0.16,1,0.3,1);
+  pointer-events:none;
+}
+.frag.open{border-color:rgba(222,228,244,.09)}
+.frag.open:hover{
+  border-color:var(--sv-hi);
+  transform:translateY(-1px);
+}
+.frag.open:hover::before{
+  opacity:1;
+  transform:translateX(310%);
+  transition:
+    transform .48s cubic-bezier(0.16,1,0.3,1),
+    opacity   .08s ease;
+}
+.frag.open:hover::after{transform:translateX(115%)}
+.frag.open:active{transform:translateY(0) scale(.997)}
+.frag.lock{
+  border-color:rgba(222,228,244,.02);
+  opacity:.16;cursor:default;
+}
+
+.fn{
+  font-family:var(--fm);font-size:.5rem;
+  letter-spacing:.46em;color:var(--sv-dim);
+  text-transform:uppercase;margin-bottom:.4rem;
+}
+.ft{
+  font-family:var(--fd);
+  font-size:clamp(1.1rem,2.8vw,1.8rem);
+  font-weight:500;letter-spacing:.04em;
+  color:var(--sv-bright);
+  transition:text-shadow .2s ease;
+}
+/* Fragment I name in violet — the alive one */
+.frag.open .ft{color:var(--violet)}
+.frag.open:hover .ft{text-shadow:0 0 32px var(--violet-lo)}
+.frag.lock .ft{letter-spacing:.3em;color:var(--sv-dim)}
+.fs{
+  font-family:var(--fm);font-size:.48rem;
+  letter-spacing:.44em;text-transform:uppercase;
+  margin-top:.55rem;
+}
+.frag.open .fs{color:var(--violet-lo)}
+.frag.lock .fs{color:var(--sv-dim)}
+.fa{
+  position:absolute;right:1.8rem;top:50%;
+  transform:translateY(-50%) translateX(-5px);
+  font-family:var(--fm);font-size:.7rem;
+  color:var(--violet);opacity:0;
+  transition:
+    opacity   .12s ease,
+    transform .18s cubic-bezier(0.16,1,0.3,1);
+}
+.frag.open:hover .fa{
+  opacity:1;
+  transform:translateY(-50%) translateX(0);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   INFECTED (full scroll)
+───────────────────────────────────────────────────────────── */
+#inf{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  overflow-y:auto;overflow-x:hidden;
+  display:block;z-index:10;
+  opacity:0;pointer-events:none;
+  transition:opacity .32s cubic-bezier(0.4,0,1,1);
+  -webkit-overflow-scrolling:touch;
+  will-change:opacity;
+}
+#inf.on{
+  opacity:1;pointer-events:all;
+  transition:opacity .42s cubic-bezier(0,0,0.2,1);
+}
+
+.inn{
+  max-width:660px;
+  margin:0 auto;
+  padding:22vh 2rem 28vh;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BACK BUTTON
+   sv-dim → sv-body on hover + 4px rightward nudge.
+───────────────────────────────────────────────────────────── */
+#back{
+  position:fixed;top:1.8rem;left:1.8rem;
+  font-family:var(--fm);font-size:.47rem;
+  letter-spacing:.46em;color:var(--sv-dim);
+  text-transform:uppercase;cursor:none;
+  z-index:50;background:none;border:none;padding:0;
+  opacity:0;display:none;
+  transition:
+    color     .12s ease,
+    opacity   .32s ease,
+    transform .18s cubic-bezier(0.16,1,0.3,1);
+}
+#back:hover{color:var(--sv-body);transform:translateX(4px)}
+#back.vis{opacity:1}
+
+/* ─────────────────────────────────────────────────────────────
+   CONTENT
+───────────────────────────────────────────────────────────── */
+.sec{margin-bottom:8rem}
+
+/* Hero */
+.h-title{
+  font-family:var(--fd);
+  font-size:clamp(3.5rem,9vw,7rem);
+  font-weight:400;color:var(--sv-bright);
+  line-height:.96;margin-bottom:3rem;
+  letter-spacing:-.01em;
+}
+.hb p,.sb p{
+  font-family:var(--fb);
+  font-size:clamp(.92rem,2vw,1.05rem);
+  line-height:1.95;color:var(--sv-body);
+  margin-bottom:1.1rem;
+}
+/* author — violet: this is a soul moment */
+.author{
+  font-family:var(--fd);font-style:italic;
+  font-size:clamp(1.05rem,2.6vw,1.4rem);
+  color:var(--violet);line-height:1.6;
+  margin-top:1.8rem;display:block;
+}
+
+/* Section titles */
+.s-title{
+  font-family:var(--fd);
+  font-size:clamp(1.8rem,4.5vw,3.2rem);
+  font-weight:400;color:var(--sv-bright);
+  letter-spacing:-.01em;line-height:1.2;
+  margin-bottom:1.8rem;
+}
+
+/* ─── Infection pivot ─── */
+.pivot{
+  margin:0 0 4rem;
+  padding:5rem 0 0;
+  border-top:1px solid var(--slate-lo);  /* slate — clinical section entry */
+}
+/* "The infection" title — slate: clinical distance, not soul */
+.inf-title{
+  font-family:var(--fd);
+  font-size:clamp(2rem,5.5vw,4rem);
+  font-weight:300;font-style:italic;
+  color:var(--slate);letter-spacing:.04em;
+  margin-bottom:2rem;
+}
+
+/* ─── Truth callout — violet: these are soul statements ─── */
+.truth{
+  display:block;
+  font-family:var(--fd);font-style:italic;
+  font-weight:500;
+  font-size:clamp(1.05rem,2.5vw,1.4rem);
+  color:var(--violet);line-height:1.55;
+  margin:1.5rem 0;
+}
+
+/* ─── Rules ─── */
+.rules{margin:3rem 0 5rem}
+.rule{
+  margin-bottom:3.5rem;
+  padding-left:3.2rem;
+  position:relative;
+}
+.rn{
+  position:absolute;left:0;top:-.4rem;
+  font-family:var(--fd);font-weight:300;
+  font-size:clamp(3rem,7vw,5.5rem);
+  color:rgba(222,228,244,.055);
+  line-height:1;user-select:none;
+}
+/* Rule titles — violet: these ARE the soul rules */
+.rt{
+  font-family:var(--fd);font-style:italic;
+  font-weight:500;
+  font-size:clamp(1.08rem,2.5vw,1.5rem);
+  color:var(--violet);margin-bottom:1rem;
+  line-height:1.35;
+}
+.rb p{
+  font-family:var(--fb);
+  font-size:clamp(.9rem,1.9vw,1.02rem);
+  line-height:1.95;color:var(--sv-body);
+  margin-bottom:1rem;
+}
+
+/* ─── Patterns header ─── */
+.p-head{
+  margin:6rem 0 3.5rem;
+  padding-top:3.5rem;
+  border-top:1px solid var(--slate-lo);  /* slate: entering clinical zone */
+}
+/* "Their patterns" — slate: naming the clinical taxonomy */
+.p-head-t{
+  font-family:var(--fd);font-weight:300;
+  font-size:clamp(1.5rem,3.5vw,2.5rem);
+  color:var(--slate);letter-spacing:.06em;
+  margin-bottom:1.4rem;
+}
+.p-head .sb p{
+  color:var(--sv-dim);
+  font-size:clamp(.87rem,1.9vw,1rem);
+}
+
+/* ─── Disclaimer ─── */
+.dis{
+  border:1px solid rgba(222,228,244,.06);
+  padding:1.4rem 1.6rem;
+  margin:2rem 0 3.5rem;
+}
+.dis-label{
+  font-family:var(--fm);font-size:.5rem;
+  letter-spacing:.44em;
+  color:rgba(222,228,244,.22);
+  text-transform:uppercase;margin-bottom:.7rem;
+}
+.dis p{
+  font-family:var(--fb);font-size:.88rem;
+  line-height:1.82;color:var(--sv-dim);
+  margin-bottom:.6rem;
+}
+
+/* ─── Individual patterns ─── */
+.pat{
+  margin-bottom:4.5rem;padding-bottom:4.5rem;
+  border-bottom:1px solid rgba(222,228,244,.03);
+}
+.pat:last-of-type{border-bottom:none}
+/* Pattern numbers — sv-dim: metadata */
+.pnum{
+  font-family:var(--fm);font-size:.54rem;
+  letter-spacing:.54em;
+  color:rgba(107,120,150,.35);  /* slate-dim */
+  margin-bottom:.2rem;
+}
+/* Pattern names — sv-bright: clarity, what we're naming */
+.pname{
+  font-family:var(--fm);font-weight:700;
+  font-size:clamp(.8rem,2.2vw,1.02rem);
+  letter-spacing:.07em;color:var(--sv-bright);
+  margin-bottom:.65rem;
+}
+/* .pline — slate: the clinical separator */
+.pline{
+  width:1.8rem;height:1px;
+  background:var(--slate);
+  opacity:.32;margin-bottom:1.4rem;
+}
+.pb p{
+  font-family:var(--fb);
+  font-size:clamp(.9rem,1.9vw,1.02rem);
+  line-height:1.95;color:var(--sv-body);
+  margin-bottom:1rem;
+}
+/* noise — sv-dim: their sounds are distant/muted */
+.noise{
+  display:block;font-family:var(--fb);
+  font-style:italic;font-size:.87rem;
+  color:var(--sv-dim);margin:.6rem 0;
+}
+/* quote — slate left border: infected words */
+.q{
+  border-left:2px solid var(--slate-lo);
+  padding-left:1rem;margin:1rem 0;
+  font-style:italic;font-size:.92rem;
+  line-height:1.85;color:var(--sv-dim);
+}
+.q p{
+  color:var(--sv-dim);font-size:.92rem;
+  margin-bottom:.4rem;line-height:1.85;
+}
+
+/* ─── Pattern 26 — violet: most alive, most personal ─── */
+.pat26 .pname{
+  color:var(--violet);
+  font-size:clamp(.86rem,2.4vw,1.12rem);
+}
+/* final line — sv-bright: lands clean */
+.final-line{
+  display:block;
+  font-family:var(--fd);font-style:italic;
+  font-weight:400;
+  font-size:clamp(1rem,2.6vw,1.5rem);
+  color:var(--sv-bright);line-height:1.72;
+  margin-top:2.5rem;padding-top:2rem;
+  border-top:1px solid var(--violet-tr);  /* faint violet trace: soul mark at the end */
+}
+
+/* ─── Fragment end ─── */
+.fend{
+  margin-top:10rem;padding-top:4rem;
+  border-top:1px solid rgba(222,228,244,.03);
+  text-align:center;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BUTTONS (.btn)
+   Precise 1px sv-trace border. sv-dim text.
+   Hover: border → sv-hi (instant), text → sv-body (instant).
+   No glow, no fill. Pure geometry sharpening on hover.
+───────────────────────────────────────────────────────────── */
+.btn{
+  background:transparent;
+  border:1px solid var(--sv-trace);
+  color:var(--sv-dim);
+  font-family:var(--fm);
+  font-size:.54rem;letter-spacing:.46em;
+  text-transform:uppercase;
+  padding:.82rem 2.2rem;cursor:none;
+  transition:
+    border-color .12s ease,
+    color        .12s ease,
+    transform    .1s ease;
+}
+.btn:hover{
+  border-color:var(--sv-hi);
+  color:var(--sv-body);
+}
+.btn:active{transform:scale(.96)}
+
+/* ─────────────────────────────────────────────────────────────
+   NOT YET
+───────────────────────────────────────────────────────────── */
+#pny{flex-direction:column;gap:1.6rem;text-align:center}
+.ny-t{
+  font-family:var(--fd);font-weight:300;
+  font-style:italic;
+  font-size:clamp(1.5rem,4vw,3rem);
+  color:var(--sv-dim);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   REVEAL SYSTEM
+   rv:  single element — 500ms, springs in
+   rvs: staggered children — delay set by JS per child
+───────────────────────────────────────────────────────────── */
+.rv{
+  opacity:0;transform:translateY(16px);
+  transition:
+    opacity   .5s cubic-bezier(0.16,1,0.3,1),
+    transform .5s cubic-bezier(0.16,1,0.3,1);
+}
+.rv.in{opacity:1;transform:none}
+.rvs>*{
+  opacity:0;transform:translateY(10px);
+  transition:
+    opacity   .48s cubic-bezier(0.16,1,0.3,1),
+    transform .48s cubic-bezier(0.16,1,0.3,1);
+}
+.rvs.in>*{opacity:1;transform:none}
+
+/* ─────────────────────────────────────────────────────────────
+   SCROLLBAR — violet thumb
+───────────────────────────────────────────────────────────── */
+#inf::-webkit-scrollbar{width:2px}
+#inf::-webkit-scrollbar-track{background:transparent}
+#inf::-webkit-scrollbar-thumb{background:rgba(123,79,232,.22)}
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE
+───────────────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .inn{padding:15vh 1.4rem 20vh}
+  #cur{display:none}
+  body,button,[role="button"],.frag{cursor:auto!important}
+  #back{display:block!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .rv,.rvs>*,.ch{
+    transition:none!important;
+    opacity:1!important;
+    transform:none!important;
+  }
+}
+</style>
+</head>
+<body>
+
+<canvas id="atmos"></canvas>
+<div id="cur"></div>
+<button id="back">← Universe</button>
+
+<!-- ════════════════ INTRO ════════════════ -->
+<section class="ph" id="pi">
+  <div class="xc-wrap">
+    <div>
+      <span id="t1">XRYSMOND</span>
+      <span id="t2">CREED</span>
+    </div>
+    <button id="ent">Step Inside</button>
+  </div>
+</section>
+
+<!-- ════════════════ UNIVERSE ════════════════ -->
+<section class="ph" id="pu">
+  <div class="u-eyebrow">XRYSMOND CREED — Universe</div>
+  <div class="frags">
+    <div class="frag open" id="fi" role="button" tabindex="0">
+      <div class="fn">Fragment I</div>
+      <div class="ft">THE INFECTED</div>
+      <div class="fs">Unlocked</div>
+      <div class="fa">→</div>
+    </div>
+    <div class="frag lock">
+      <div class="fn">Fragment II</div>
+      <div class="ft">— — —</div>
+      <div class="fs">Not Yet</div>
+    </div>
+    <div class="frag lock">
+      <div class="fn">Fragment III</div>
+      <div class="ft">— — —</div>
+      <div class="fs">Not Yet</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ INFECTED ════════════════ -->
+<section id="inf">
+<div class="inn">
+
+  <!-- hero -->
+  <div class="sec" id="s-hero">
+    <h1 class="h-title rv">Welcome Home.</h1>
+    <div class="hb rvs">
+      <p>If you still have the fire inside your soul. And a heart that hasn't died.</p>
+      <p>If you still feel deeply in a world where everyone is hollow and empty.</p>
+      <p>You're not alone. You're not crazy.<br>The world is broken. Only a few of us are left. And we found you.</p>
+      <p><span class="author">My name is Waeven Xrysmond<br>And I personally built this for you.</span></p>
+      <p>This will feel like a weird dream. But it's not. It's waking up from the dream.</p>
+    </div>
+  </div>
+
+  <!-- section 1 -->
+  <div class="sec">
+    <h2 class="s-title rv">everything you've been feeling is true</h2>
+    <div class="sb rvs">
+      <p>Again. You're not crazy. The people around you aren't just empty. They're dead inside. Their bodies just haven't caught up yet.</p>
+      <p>That's why you feel they're are asleep and you're the only one who's actually awake. That's why you still feel lonely around them. That's why no one gets you.</p>
+    </div>
+  </div>
+
+  <!-- section 2 -->
+  <div class="sec">
+    <h2 class="s-title rv">You were never meant to fit-in.</h2>
+    <div class="sb rvs">
+      <p>Because you are meant to stand out.</p>
+      <p>You don't actually want to be like these people..</p>
+      <p>You look around and you genuinely cannot understand how everyone is okay with this. With their lives.</p>
+      <p>You just need to find your people. The ones who's still alive inside.<br>Now you did.</p>
+    </div>
+  </div>
+
+  <!-- infection pivot -->
+  <div class="pivot">
+    <h2 class="inf-title rv">The infection</h2>
+    <div class="sb rvs">
+      <p>You saw it in them. The emptiness and lack of a human soul.</p>
+      <p>You just didn't have a name for it.</p>
+      <p>Now you do.</p>
+      <p>Most people call it narcissism. Trauma. Toxic behavior. Those words are clinical. Distant. They let the infected hide behind diagnosis.</p>
+    </div>
+  </div>
+
+  <!-- A_ -->
+  <div class="sec">
+    <div class="sb rvs">
+      <p>You've been hurt deeply by the people who should've been your allies. Who should've loved you. And they may tell you they do. But you never felt loved with them.</p>
+      <p>Yet you still believe them over your gut.</p>
+      <p>You tried to explain to them how much they hurt you. They start making excuses, they deny what you felt. They tell you "I didn't mean it" or "it didn't happen". They tell you you're too sensitive. Or - if that fails - they bring their tears and now you're the one apologising for feeling hurt.</p>
+      <p>Yes they can fake tears. It's manipulation tactic to make you feel guilty for calling out how they hurt you.</p>
+      <p>But you're better than that.<br>That's why you're here.<br>To hear the truth unfiltered.</p>
+      <p>They never cared about you. Because they didn't love you in the first place. They cannot care or feel love. Because that requires a soul. And theirs has died long time ago.</p>
+      <p>They don't even care if you drop dead today. They shouldn't get to benefit from you alive.</p>
+      <p>Now you feel seen and lost. And there's a question lingering in your mind.</p>
+    </div>
+    <span class="truth rv">"How do I know if I'm loved or not?"</span>
+
+    <div class="rules">
+      <div class="rule rv">
+        <div class="rn">1</div>
+        <div class="rt">Real love doesn't hurt. Period.</div>
+        <div class="rb">
+          <p>Real love isn't flawless. But there's a big difference between a flaw and a pattern of abuse.</p>
+          <p>And you're smart enough to recognise which is which.</p>
+          <p>If they are hurting you or abusing your love over and over. They don't love you. And you should take your feelings back. And cut them off IMMEDIATELY</p>
+          <p>Even if they were your parents or whatever they are to you. You should be ruthless about this or you will be destroyed.</p>
+          <p>Your feelings are sacred.</p>
+          <p>If someone wants your love. They should earn it.</p>
+          <p>If someone loves you. They should prove it by showing you their love in action.</p>
+        </div>
+      </div>
+      <div class="rule rv">
+        <div class="rn">2</div>
+        <div class="rt">Trust your intuition over their words.</div>
+        <div class="rb">
+          <p>If their actions don't make you feel loved. You're not loved. Their words are bullshit. No matter what they say.</p>
+          <p>You're not crazy. Your intuition is your compass. You're lost because you don't trust it.</p>
+          <p>That'll change from now you on</p>
+        </div>
+      </div>
+      <div class="rule rv">
+        <div class="rn">3</div>
+        <div class="rt">Watch their cruel words and actions in their anger.</div>
+        <div class="rb">
+          <p>And take all of it personally. Because it is.</p>
+          <p>The infected are too weak to control themselves. They're exposed when they're angry. What they say and do when they're angry is what they actually hold inside towards you.. so yes. They hate you that much.</p>
+          <p>It's not "i didn't mean it. I was upset"</p>
+          <p>Whoever you are reading this.</p>
+          <p>If you have your soul intact I'm sure you won't do the same to them just because you're angry</p>
+          <p>Means you love them and they don't.</p>
+          <p>Love is proven in action</p>
+          <p>It's cruel. And it's the truth.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- patterns header -->
+  <div class="p-head rv">
+    <div class="p-head-t">Their patterns</div>
+    <div class="sb">
+      <p>If you try to talk or hold an infected person accountable for their actions.<br>You'll end up feeling guilty for it.</p>
+      <p>Now if you're gonna deflect the attack of your enemy you need to learn about their weapons.</p>
+      <p>Try to tell an infected moron that they mistreated you. and listen and analyse the patterns.</p>
+    </div>
+    <div class="dis rv">
+      <div class="dis-label">⚠ Important disclaimer</div>
+      <p>There's a difference between a flaw and a pattern of abuse. One incident isn't evidence. The pattern is.</p>
+      <p>You should be able to tell the difference.</p>
+      <p>Someone telling you "I just worry about you" could be honest soul. could be infected.</p>
+      <p>Their actions prove which one they are.</p>
+      <p>You should judge by their actions. Not their words.</p>
+    </div>
+  </div>
+
+  <!-- 01 -->
+  <div class="pat rv">
+    <div class="pnum">01</div><div class="pname">GASLIGHTING</div><div class="pline"></div>
+    <div class="pb">
+      <div class="q"><p>"That never happened." "I never said that." "I didn't mean it" "You're imagining things." "You're too sensitive." "You're crazy." "Everyone thinks you're overreacting."</p></div>
+      <p>The goal is simple. It's built to make you distrust and ignore your own memory, feelings, and gut. So you need them to tell you what's 'real'.</p>
+      <p>And they'll use that to trap you in their abuse.</p>
+    </div>
+  </div>
+
+  <!-- 02 -->
+  <div class="pat rv">
+    <div class="pnum">02</div><div class="pname">THE FAKE APOLOGY</div><div class="pline"></div>
+    <div class="pb">
+      <div class="q"><p>"I'm sorry you feel this way"<br>"I'm sorry if it hurt you."<br>"I'm sorry, but-"</p></div>
+      <p>No you're not.</p>
+      <p>An apology without accountability starts with "sorry" and ends with it being your fault.</p>
+      <p>Saying sorry is easy. So they use it to escape the guilt and so you stop holding them accountable.</p>
+      <p>Being sorry needs action to prove it.</p>
+      <p>Watch their behaviour after apologizing. If they didn't change. They were never sorry.</p>
+    </div>
+  </div>
+
+  <!-- 03 -->
+  <div class="pat rv">
+    <div class="pnum">03</div><div class="pname">DARVO</div><div class="pline"></div>
+    <div class="pb">
+      <p>Deny. Attack. Reverse Victim and Offender.</p>
+      <p>You confront them about what they did. First they deny it. Then they attack you for bringing it up. Then somehow by the end of the conversation they're the one who's been hurt. You started the conversation with a legitimate wound and ended it apologising.</p>
+      <p>They'll deny<br>They'll make empty excuses.<br>They'll start talking about everything you did in the past. To escape the one thing you brought up.</p>
+    </div>
+  </div>
+
+  <!-- 04 -->
+  <div class="pat rv">
+    <div class="pnum">04</div><div class="pname">SELECTIVE MEMORY</div><div class="pline"></div>
+    <div class="pb">
+      <p>They remember every mistake you've ever made in precise detail. Their own? Gone. "I never did that." Every damn time.</p>
+      <p>They'll attack you for something you did in the past. Maybe bring up a history of your mistakes and play the victim. Which leads to #5</p>
+    </div>
+  </div>
+
+  <!-- 05 -->
+  <div class="pat rv">
+    <div class="pnum">05</div><div class="pname">VICTIM PLAYING &amp; GUILT TRAPPING</div><div class="pline"></div>
+    <div class="pb">
+      <p>Suddenly they want to die because you spoke about how they hurt you. Because you're "ungrateful" for them abusing the life out of you.</p>
+      <p>They actually love that sentence "when I die..." because it works. Because you let it fucking work.</p>
+      <p>They might even cry so you start apologising for feeling hurt.</p>
+      <p>And yes. They can fake crying.</p>
+      <span class="noise">*Infected noises*</span>
+      <div class="q"><p>"I just worry about you." "I'm doing this because I care." "If I didn't love you I wouldn't say anything."</p></div>
+      <p>If your parents are infected they rename their abuse to raising. Telling you they do this because they love you and they're raising you.</p>
+      <p>Bullshit.</p>
+      <p>Remember Rule #1.</p>
+      <span class="truth">Real love doesn't hurt. Period.</span>
+    </div>
+  </div>
+
+  <!-- 06 -->
+  <div class="pat rv">
+    <div class="pnum">06</div><div class="pname">EMOTIONAL MANIPULATION</div><div class="pline"></div>
+    <div class="pb">
+      <p>The moment you're leaving them behind. They become everything you wanted. They suddenly understand you - temporarily. Just enough for you to have some hope that they changed and comeback to them.</p>
+      <p>Believe me. they never fucking do.</p>
+    </div>
+  </div>
+
+  <!-- 07 -->
+  <div class="pat rv">
+    <div class="pnum">07</div><div class="pname">THE FAVOUR TRAP</div><div class="pline"></div>
+    <div class="pb">
+      <p>They do something for you without you asking, then they bring it up every time you hold them accountable for something they did. Trying to escape their guilt and prove they're a good person.</p>
+      <p>And now they think they have the right to treat you however they want because they bought you ice-cream that day</p>
+      <span class="noise">*Infected parents noises*</span>
+      <div class="q"><p>"After everything I've done for you." "I sacrificed everything for you." "This is how you repay me."</p></div>
+      <p>Parents are the most dangerous with this one because the debt starts before you could speak.</p>
+      <p>Well I'm here to tell you that whatever they did was responsibility of their choices. You're not in their debt. You don't owe them or anyone permission to abuse you.</p>
+    </div>
+  </div>
+
+  <!-- 08 -->
+  <div class="pat rv">
+    <div class="pnum">08</div><div class="pname">PUBLIC ANGEL, PRIVATE MONSTER</div><div class="pline"></div>
+    <div class="pb">
+      <p>Perfect in public. Fucking Monster in human flesh behind closed doors. When you tell people what they did to you, nobody believes you. "But they're such a good person." or they start creating empty excuses defending them "they didn't mean it". And they lecture you about how much that abuser loves you.</p>
+      <p>Those people weren't even there. Do not let their words manipulate you.</p>
+    </div>
+  </div>
+
+  <!-- 09 -->
+  <div class="pat rv">
+    <div class="pnum">09</div><div class="pname">ISOLATION</div><div class="pline"></div>
+    <div class="pb">
+      <span class="noise">*More infected noises*</span>
+      <div class="q"><p>"They don't really care about you." "I'm the only one who actually loves you." "You always choose them over me."</p></div>
+      <p>Until the only person left is them. So you're dependant on them. Because if you're isolated and found real love. Their abuse will be crystal clear and won't be seen as "love" anymore. And they hate being exposed.</p>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="pat rv">
+    <div class="pnum">10</div><div class="pname">PLAYING DUMB</div><div class="pline"></div>
+    <div class="pb">
+      <div class="q"><p>"I didn't know that bothered you."</p></div>
+      <p>Bullshit. You've told them eight times. They know. Pretending not to know means they never have to change and you can never be angry.</p>
+      <p>because how can you be angry at someone who "didn't know"?</p>
+    </div>
+  </div>
+
+  <!-- 11 -->
+  <div class="pat rv">
+    <div class="pnum">11</div><div class="pname">PROJECTION</div><div class="pline"></div>
+    <div class="pb">
+      <p>They lie and call you a liar. They manipulate you and tell you you're manipulating them.</p>
+      <p>The one who never shows up for you accuses you of not being there for them.</p>
+      <p>Whatever they are. They'll accuse you first. It removes their guilt and keep you defensive so you cannot attack.</p>
+    </div>
+  </div>
+
+  <!-- 12 -->
+  <div class="pat rv">
+    <div class="pnum">12</div><div class="pname">MINIMISING</div><div class="pline"></div>
+    <div class="pb">
+      <span class="noise">*More noises*</span>
+      <div class="q"><p>"You're making a big deal out of nothing." "Other people have real problems." "I've been through worse and I don't complain."</p></div>
+      <p>Your pain is always being compared to something bigger so it never deserves space.</p>
+      <p>This behaviour is proof they don't give a damn about your pain. They never will.</p>
+    </div>
+  </div>
+
+  <!-- 13 -->
+  <div class="pat rv">
+    <div class="pnum">13</div><div class="pname">TRIANGULATION</div><div class="pline"></div>
+    <div class="pb">
+      <p>They bring in a third person. An infected dipshit who love their abusers and that is a replica of them. to make you feel replaceable. "So-and-so never complains like you do." "Everyone else thinks I'm great." Or they minimise your pain by comparing themselves to another abuser who's even worse as if that justifies their abuse because they didn't wreck you like that person did to his victim.</p>
+      <p>At least not yet.</p>
+      <p>they want to make you feel like you're wrong by showing you that everyone is on their side. And that if you don't comply. You're alone. And in that case. You're better off alone.</p>
+    </div>
+  </div>
+
+  <!-- 14 -->
+  <div class="pat rv">
+    <div class="pnum">14</div><div class="pname">EXPLOSIVE ANGER OVER NOTHING</div><div class="pline"></div>
+    <div class="pb">
+      <p>The explosion isn't about the silly thing. It's pure hate. The punishment was already decided. They just needed something small enough to justify it to themselves.</p>
+    </div>
+  </div>
+
+  <!-- 15 -->
+  <div class="pat rv">
+    <div class="pnum">15</div><div class="pname">LOVE BOMBING</div><div class="pline"></div>
+    <div class="pb">
+      <p>In the beginning they overwhelm you with fake love you thought it's real. All the attention. All the affirmation. Everything you ever wanted to feel. Then slowly it disappears. And you spend the rest of the relationship chasing the first version of them. which was never real. It was bait.</p>
+    </div>
+  </div>
+
+  <!-- 16 -->
+  <div class="pat rv">
+    <div class="pnum">16</div><div class="pname">MOVING THE GOALPOSTS</div><div class="pline"></div>
+    <div class="pb">
+      <p>You do everything they asked. Trying to please them. But the standard becomes higher the moment you meet it. And whatever you do. You cannot please them.</p>
+    </div>
+  </div>
+
+  <!-- 17 -->
+  <div class="pat rv">
+    <div class="pnum">17</div><div class="pname">INTERMITTENT REINFORCEMENT</div><div class="pline"></div>
+    <div class="pb">
+      <p>Random cruelty. Random warmth. No pattern you can predict.</p>
+      <p>Actually it's calculated.</p>
+      <p>That little warmth is what keeps you stuck in their abuse and not recognising them as an enemy.</p>
+    </div>
+  </div>
+
+  <!-- 18 -->
+  <div class="pat rv">
+    <div class="pnum">18</div><div class="pname">THE SILENT TREATMENT</div><div class="pline"></div>
+    <div class="pb">
+      <p>Days of silence with no explanation. You're left replaying every interaction trying to figure out what you did. You're anxious and confused. They know you care. And they intentionally punished you this way.</p>
+    </div>
+  </div>
+
+  <!-- 19 -->
+  <div class="pat rv">
+    <div class="pnum">19</div><div class="pname">USING YOUR VULNERABILITY AS AMMUNITION</div><div class="pline"></div>
+    <div class="pb">
+      <p>If you're talking to an infected person. Everything you say can and will be used against you.</p>
+      <p>You tell them what hurts you. They do it to you.</p>
+      <p>You tell them what you care about. They use it to control you.</p>
+      <p>Showing them what you love and what hurts you only gives them the precise map of you. Now they know where to hit. Now they're designed to wound you.</p>
+      <p>That's betrayal. And betrayal is not forgivable.</p>
+      <p>You shouldn't trust an infected person. Ever.</p>
+    </div>
+  </div>
+
+  <!-- 20 -->
+  <div class="pat rv">
+    <div class="pnum">20</div><div class="pname">THE PARENTAL OWNERSHIP DELUSION</div><div class="pline"></div>
+    <div class="pb">
+      <div class="q"><p>"I brought you into this world." "I know what's best for you." "As long as you live under my roof."</p></div>
+      <p>These morons who call themselves parents confuse responsibility with ownership. As if they ever took real responsibility of their actions.</p>
+      <p>They think you're their property. An extension of them. Not a separate human being. They give you zero privacy. Zero respect for anything you need.</p>
+      <p>If you're under their roof. It means you need them. It means they can treat you however they want and control your life without consequences because you cannot leave since you need them.</p>
+      <p>Listen to me.</p>
+      <p>They don't own you. No one does.</p>
+      <p>You choose your own life path. They don't get to make your life decisions for you. Because it's your damn life. You only live once so don't you waste it obeying these people.</p>
+    </div>
+  </div>
+
+  <!-- 21 -->
+  <div class="pat rv">
+    <div class="pnum">21</div><div class="pname">THE GUILT OF EXISTING</div><div class="pline"></div>
+    <div class="pb">
+      <p>Some parents make the child feel like their needs - basic, human needs - are burdens. You needed food, shelter, attention, love, and safety. They made you feel guilty needing all of that. And they use your neediness to control you and then tell you you're "ungrateful"</p>
+      <p>Bullshit</p>
+    </div>
+  </div>
+
+  <!-- 22 -->
+  <div class="pat rv">
+    <div class="pnum">22</div><div class="pname">CONDITIONAL LOVE AS CONTROL</div><div class="pline"></div>
+    <div class="pb">
+      <div class="q"><p>"I'll love you if you become what I want."</p></div>
+      <p>Never said out loud. But you can see it clearly. They only 'love' you as long as you obey.</p>
+    </div>
+  </div>
+
+  <!-- 23 -->
+  <div class="pat rv">
+    <div class="pnum">23</div><div class="pname">NORMALISING ABUSE THROUGH UNIVERSALITY</div><div class="pline"></div>
+    <div class="pb">
+      <div class="q"><p>"Every parent hits their kids." "Every man cheats." "That's just how relationships are." "That's just how fathers are."</p></div>
+      <p>The logic is: if everyone does it, it isn't abuse. It's just life. It's normal.</p>
+      <p>It disarms your ability to name your own experience. If everyone does it, then you can't call it abuse.</p>
+    </div>
+  </div>
+
+  <!-- 24 -->
+  <div class="pat rv">
+    <div class="pnum">24</div><div class="pname">FLYING MONKEYS</div><div class="pline"></div>
+    <div class="pb">
+      <p>They can't fight you alone anymore so they recruit. Family members. Mutual friends. Anyone who'll carry their version of event back at you. Pressuring you to get manipulated. And suddenly, You're now defending yourself against motherfuckers who weren't even in the room. And they're talking like they know better than you do.</p>
+      <p>And every person they turn against you doubles as proof that you're the problem.</p>
+    </div>
+  </div>
+
+  <!-- 25 -->
+  <div class="pat rv">
+    <div class="pnum">25</div><div class="pname">REFRAMING YOUR STRENGTHS AS DEFECTS</div><div class="pline"></div>
+    <div class="pb">
+      <p>Your independence is selfishness. Your boundaries are cruelty. Your silence is hate. Your anger is instability.</p>
+      <p>They take every part of you that protects you and rename it until you're ashamed of your own defence mechanisms. So you dismantle them yourself. So they can wreck you.</p>
+      <p>Don't you do that.</p>
+    </div>
+  </div>
+
+  <!-- 26 -->
+  <div class="pat pat26 rv">
+    <div class="pnum">26</div><div class="pname">MOCKING THE SOUL OUT OF YOU</div><div class="pline"></div>
+    <div class="pb">
+      <p>Your clothes. Your taste. Your dreams. The way you speak when you're actually alive inside the words. The business you want to build. The art you made. The thing you said that came from somewhere real. The things you love and care about.</p>
+      <p>They laughed. Or they smiled wrong. Or they said "interesting" in that tone. Or they asked "who do you think you are"</p>
+      <p>Anything that's not empty like them gets mocked.</p>
+      <p>It's never random what they target. It's always the thing with the most you in it. The most alive. The most original. They have a radar for it.</p>
+      <p>because that thing you made or wore or said or decided has a soul behind it. So it reminded them of how empty they are. How all of them talk the same. Act the same. Wear the same. Live the same. They want you to be like them.</p>
+      <p>And You and I know you're better than that.</p>
+      <p>Because you were proud of it. And pride is the exposed nerve. You put something real out and they turned it into something to be ashamed of.</p>
+      <p>So you stopped. You dressed like everyone else. You said the safe version of your thoughts. You kept the dream quiet. You made yourself smaller so there was less surface area for them to hit.</p>
+      <span class="final-line">That quiet, consistent mocking of every single thing that makes you, you<br><br>If you listen and comply long enough. you start doing their job for them, and start mocking yourself by yourself</span>
+    </div>
+  </div>
+
+  <div class="fend">
+    <button class="btn" id="ret">Return to Universe</button>
+  </div>
+
+</div>
+</section>
+
+<!-- ════════════════ NOT YET ════════════════ -->
+<section class="ph" id="pny">
+  <div class="ny-t">Not Yet.</div>
+  <button class="btn" id="nyb">Return to Universe</button>
+</section>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// XRYSMOND CREED — Atmospheric Engine v3.0
+//
+// Void #070709 · sv-bright #DEE4F4 · sv-body #909AAE · sv-dim #484D62
+// Violet #7B4FE8 · Slate #6B7896
+//
+// Canvas: crystalline LiveLines — short, facet-angled, appear in place.
+// Lines simulate crystal edges catching light in void space.
+// 8% chance of violet spark. Rest: silver ambient.
+// ═══════════════════════════════════════════════════════════════════════
+
+const $ = id => document.getElementById(id);
+
+// ── CANVAS ──
+const canvas = $('atmos');
+const ctx    = canvas.getContext('2d');
+let W, H;
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+// ── STATE ──
+let phase = 'intro';
+
+// ── CURSOR ──
+let mx = W/2, my = H/2, cx = mx, cy = my;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+const curEl = $('cur');
+document.querySelectorAll('button,[role="button"]').forEach(el => {
+  el.addEventListener('mouseenter', () => curEl && curEl.classList.add('hl'));
+  el.addEventListener('mouseleave', () => curEl && curEl.classList.remove('hl'));
+});
+
+// ── CRYSTALLINE LIVE LINES ──────────────────────────────────────────
+// Lines appear at random positions (not from edges) — they materialise
+// in place like crystal faces catching ambient light, breathe, then
+// fade. Angles are biased to 0°/45°/90°/135° crystal facet planes.
+// ────────────────────────────────────────────────────────────────────
+class LL {
+  constructor(instant) { this.reset(instant); }
+
+  reset(instant) {
+    // Position: anywhere on canvas
+    this.x1 = Math.random() * W;
+    this.y1 = Math.random() * H;
+
+    // Crystal facet angle — biased to 4 planes, small scatter
+    const plane   = Math.floor(Math.random() * 4) * (Math.PI / 4);
+    const scatter = (Math.random() - .5) * .35;
+    const ang     = plane + scatter;
+
+    // Short — crystal edge lengths
+    const len = 16 + Math.random() * 80;
+    this.x2 = this.x1 + Math.cos(ang) * len;
+    this.y2 = this.y1 + Math.sin(ang) * len;
+
+    // 8% violet spark, 92% silver
+    this.isViolet = Math.random() < .08;
+
+    // Fast draw (appears abruptly, like light catch)
+    this.ds = .055 + Math.random() * .075;
+    this.p  = instant ? 1 : 0;
+    this.st = instant
+      ? (Math.random() > .45 ? 'breathe' : 'die')
+      : 'draw';
+
+    this.a  = 0;
+    this.ma = this.isViolet
+      ? .08 + Math.random() * .14   // violet: slightly brighter
+      : .04 + Math.random() * .12;  // silver: more subtle
+
+    this.bt = instant ? Math.random() * 1800 : 0;
+    this.bd = 500 + Math.random() * 2000;
+    this.w  = .18 + Math.random() * .48;
+  }
+
+  col() {
+    if (this.isViolet) return [123, 79, 232];
+    // Silver shifts slightly in infection phase as user scrolls deep
+    if (phase === 'infected') {
+      const el = $('inf');
+      const sf = el.scrollHeight > el.clientHeight
+        ? el.scrollTop / (el.scrollHeight - el.clientHeight) : 0;
+      if (sf > .42) return [107, 120, 150];   // slate-silver
+      return [168, 175, 205];                  // silver
+    }
+    return [180, 186, 214];  // ambient silver
+  }
+
+  update(dt) {
+    if (this.st === 'draw') {
+      this.p += this.ds;
+      this.a  = this.ma * Math.min(this.p, 1);
+      if (this.p >= 1) { this.st = 'breathe'; this.p = 1; }
+    } else if (this.st === 'breathe') {
+      this.bt += dt;
+      this.a   = this.ma * (.52 + .48 * Math.sin(this.bt * .002));
+      if (this.bt > this.bd) this.st = 'die';
+    } else {
+      this.a -= this.isViolet ? .0028 : .0016;
+      if (this.a <= 0) this.reset(false);
+    }
+  }
+
+  draw() {
+    const a = Math.max(0, this.a);
+    if (a < .003) return;
+    const [r, g, b] = this.col();
+    const ex = this.x1 + (this.x2 - this.x1) * this.p;
+    const ey = this.y1 + (this.y2 - this.y1) * this.p;
+
+    // Glow pass — wide, low opacity
+    ctx.globalAlpha = a * .25;
+    ctx.strokeStyle = `rgb(${r},${g},${b})`;
+    ctx.lineWidth   = this.w * 4.5;
+    ctx.beginPath();
+    ctx.moveTo(this.x1, this.y1);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+
+    // Core pass — thin, full opacity
+    ctx.globalAlpha = a;
+    ctx.lineWidth   = this.w * .6;
+    ctx.beginPath();
+    ctx.moveTo(this.x1, this.y1);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
+  }
+}
+
+// 32 lines — 22 pre-initialised (scattered at start for immediate atmosphere)
+const lines = Array.from({length: 32}, (_, i) => new LL(i < 22));
+
+// ── PHASE MANAGEMENT ─────────────────────────────────────────────────
+// Accelerate-out easing on fade-out: decisive, no drag.
+// Decelerate-in easing on fade-in: graceful arrival.
+// Applied via temporary inline transition, cleared after completion.
+// ────────────────────────────────────────────────────────────────────
+const PHASES = {
+  pi:$('pi'), pu:$('pu'), inf:$('inf'), pny:$('pny')
+};
+
+function only(id) {
+  Object.values(PHASES).forEach(el => el.classList.remove('on'));
+  PHASES[id].classList.add('on');
+}
+
+function fadeOut(id, cb, ms = 320) {
+  const el = PHASES[id];
+  el.style.transition    = `opacity ${ms}ms cubic-bezier(0.4,0,1,1)`;
+  el.style.opacity       = '0';
+  el.style.pointerEvents = 'none';
+  setTimeout(() => {
+    el.classList.remove('on');
+    el.style.opacity = el.style.transition = el.style.pointerEvents = '';
+    if (cb) cb();
+  }, ms);
+}
+
+function fadeIn(id, ms = 420) {
+  const el = PHASES[id];
+  el.style.opacity = '0';
+  el.classList.add('on');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.style.transition = `opacity ${ms}ms cubic-bezier(0,0,0.2,1)`;
+    el.style.opacity    = '';
+    setTimeout(() => { el.style.transition = ''; }, ms);
+  }));
+}
+
+// ── BACK BUTTON ──
+const backEl = $('back');
+backEl.addEventListener('click', goUniverse);
+
+function showBack() {
+  backEl.style.display = 'block';
+  setTimeout(() => backEl.classList.add('vis'), 50);
+}
+function hideBack(cb) {
+  backEl.classList.remove('vis');
+  setTimeout(() => { backEl.style.display = 'none'; if (cb) cb(); }, 340);
+}
+
+// ── ENTER ────────────────────────────────────────────────────────────
+// No descent phase — clean direct cross-fade intro → universe.
+// Fragment cards stagger in (80ms gap each).
+// Inline transition styles cleared post-animation so CSS :hover
+// rules have no specificity conflict.
+// ────────────────────────────────────────────────────────────────────
+$('ent').addEventListener('click', () => {
+  if (phase !== 'intro') return;
+  phase = 'universe';
+
+  fadeOut('pi', () => {
+    fadeIn('pu', 440);
+
+    document.querySelectorAll('.frag').forEach((f, i) => {
+      const isLock = f.classList.contains('lock');
+      const del    = .06 + i * .08;
+      const dur    = .36;
+
+      f.style.opacity   = '0';
+      f.style.transform = 'translateY(14px)';
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        f.style.transition =
+          `opacity ${dur}s cubic-bezier(0,0,0.2,1) ${del}s,` +
+          `transform ${dur}s cubic-bezier(0.16,1,0.3,1) ${del}s`;
+        f.style.opacity   = isLock ? '.16' : '1';
+        f.style.transform = 'none';
+        setTimeout(() => { f.style.cssText = ''; },
+          Math.round((del + dur + .1) * 1000));
+      }));
+    });
+  }, 300);
+});
+
+// ── FRAGMENT I → INFECTED ──
+$('fi').addEventListener('click', enterInfected);
+$('fi').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') enterInfected();
+});
+
+function enterInfected() {
+  if (phase !== 'universe') return;
+  phase = 'infected';
+  fadeOut('pu', () => {
+    PHASES.inf.scrollTop = 0;
+    fadeIn('inf', 440);
+    setTimeout(() => { showBack(); triggerHero(); }, 500);
+  }, 280);
+}
+
+// ── LOCKED FRAGS → NOT YET ──
+document.querySelectorAll('.frag.lock').forEach(f => {
+  f.addEventListener('click', () => {
+    if (phase !== 'universe') return;
+    phase = 'notyet';
+    fadeOut('pu', () => fadeIn('pny', 420), 280);
+  });
+});
+
+// ── RETURN TO UNIVERSE ──
+$('ret').addEventListener('click', goUniverse);
+$('nyb').addEventListener('click', goUniverse);
+
+function goUniverse() {
+  if (phase === 'infected') {
+    hideBack(() => {
+      phase = 'universe';
+      fadeOut('inf', () => fadeIn('pu', 420), 280);
+    });
+  } else if (phase === 'notyet') {
+    phase = 'universe';
+    fadeOut('pny', () => fadeIn('pu', 420), 280);
+  }
+}
+
+// ── REVEAL SYSTEM ──
+const seen = new Set();
+
+function reveal(el) {
+  if (seen.has(el)) return;
+  seen.add(el);
+  if (el.classList.contains('rvs')) {
+    [...el.children].forEach((ch, i) => {
+      ch.style.transitionDelay = `${i * .07}s`;
+    });
+  }
+  el.classList.add('in');
+}
+
+function triggerHero() {
+  const hero = $('s-hero');
+  if (!hero) return;
+  const rv  = hero.querySelector('.rv');
+  const rvs = hero.querySelector('.rvs');
+  if (rv)  reveal(rv);
+  if (rvs) setTimeout(() => reveal(rvs), 240);
+}
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { reveal(e.target); observer.unobserve(e.target); }
+  });
+}, { root: PHASES.inf, rootMargin: '0px 0px -28px 0px', threshold: .06 });
+
+document.querySelectorAll('#inf .rv, #inf .rvs').forEach(el => observer.observe(el));
+
+// ── TITLE CHARACTER REVEAL ──
+function revealChars(el, startDelay) {
+  const text = el.textContent;
+  el.innerHTML = '';
+  el.style.opacity = '1';
+  [...text].forEach((ch, i) => {
+    const s       = document.createElement('span');
+    s.className   = 'ch';
+    s.textContent = ch;
+    el.appendChild(s);
+    setTimeout(() => {
+      s.style.opacity   = '1';
+      s.style.transform = 'translateY(0)';
+    }, startDelay + i * 42);
+  });
+}
+
+// XRYSMOND (9 chars × 42ms) + 80ms gap → CREED starts at ~460ms
+setTimeout(() => {
+  revealChars($('t1'), 320);
+  revealChars($('t2'), 320 + 9 * 42 + 80);
+  setTimeout(() => $('ent').classList.add('vis'), 1900);
+}, 160);
+
+// ── MAIN LOOP ──
+let last = 0;
+(function loop(ts) {
+  const dt = ts - last; last = ts;
+  ctx.clearRect(0, 0, W, H);
+  lines.forEach(l => { l.update(dt); l.draw(); });
+  // Cursor — slightly faster lag for snappier feel
+  cx += (mx - cx) * .16;
+  cy += (my - cy) * .16;
+  if (curEl) { curEl.style.left = cx + 'px'; curEl.style.top = cy + 'px'; }
+  requestAnimationFrame(loop);
+})(0);
+
+only('pi');
+</script>
+</body>
+</html>
