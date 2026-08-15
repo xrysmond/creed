@@ -357,6 +357,7 @@ html,body{
   transition:opacity .32s cubic-bezier(0.4,0,1,1);
   -webkit-overflow-scrolling:touch;
   will-change:opacity;
+  contain:layout paint style;
 }
 #inf.on{
   opacity:1;pointer-events:all;
@@ -518,6 +519,8 @@ html,body{
 .pat{
   margin-bottom:4.5rem;padding-bottom:4.5rem;
   border-bottom:1px solid rgba(222,228,244,.06);
+  content-visibility:auto;
+  contain-intrinsic-size:0 280px;
 }
 .pat:last-of-type{border-bottom:none}
 /* Pattern numbers — sv-dim: metadata */
@@ -650,6 +653,26 @@ html,body{
 #inf::-webkit-scrollbar-track{background:transparent}
 #inf::-webkit-scrollbar-thumb{background:rgba(156,61,187,.30)}
 
+/* ── FRAGMENT I (#frag1) — same scroll architecture as #inf ── */
+#frag1{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  overflow-y:auto;overflow-x:hidden;
+  display:block;z-index:10;
+  opacity:0;pointer-events:none;
+  transition:opacity .32s cubic-bezier(0.4,0,1,1);
+  -webkit-overflow-scrolling:touch;
+  will-change:opacity;
+  contain:layout paint style;
+}
+#frag1.on{
+  opacity:1;pointer-events:all;
+  transition:opacity .42s cubic-bezier(0,0,0.2,1);
+}
+#frag1::-webkit-scrollbar{width:2px}
+#frag1::-webkit-scrollbar-track{background:transparent}
+#frag1::-webkit-scrollbar-thumb{background:rgba(156,61,187,.30)}
+
 /* ─────────────────────────────────────────────────────────────
    MOBILE
 ───────────────────────────────────────────────────────────── */
@@ -692,14 +715,15 @@ html,body{
   <div class="frags">
     <div class="frag open" id="fi" role="button" tabindex="0">
       <div class="fn">Fragment I</div>
-      <div class="ft">THE INFECTED</div>
+      <div class="ft">THE UNCHAINED</div>
       <div class="fs">Unlocked</div>
       <div class="fa">→</div>
     </div>
-    <div class="frag lock">
+    <div class="frag open" id="fii" role="button" tabindex="0">
       <div class="fn">Fragment II</div>
-      <div class="ft">— — —</div>
-      <div class="fs">Not Yet</div>
+      <div class="ft">THE WAR</div>
+      <div class="fs">Unlocked</div>
+      <div class="fa">→</div>
     </div>
     <div class="frag lock">
       <div class="fn">Fragment III</div>
@@ -709,11 +733,10 @@ html,body{
   </div>
 </section>
 
-<!-- ════════════════ INFECTED ════════════════ -->
-<section id="inf">
+<!-- ════════════════ FRAGMENT I — THE UNCHAINED ════════════════ -->
+<section id="frag1">
 <div class="inn">
 
-  <!-- hero -->
   <div class="sec" id="s-hero">
     <h1 class="h-title rv">Welcome Home.</h1>
     <div class="hb rvs">
@@ -725,7 +748,6 @@ html,body{
     </div>
   </div>
 
-  <!-- section 1 -->
   <div class="sec">
     <h2 class="s-title rv">everything you've been feeling is true</h2>
     <div class="sb rvs">
@@ -734,7 +756,6 @@ html,body{
     </div>
   </div>
 
-  <!-- section 2 -->
   <div class="sec">
     <h2 class="s-title rv">You were never meant to fit-in.</h2>
     <div class="sb rvs">
@@ -744,6 +765,17 @@ html,body{
       <p>You just need to find your people. The ones who are still alive inside.<br>Now you did.</p>
     </div>
   </div>
+
+  <div class="fend">
+    <button class="btn" id="ret1">Return to Universe</button>
+  </div>
+
+</div>
+</section>
+
+<!-- ════════════════ FRAGMENT II — THE WAR ════════════════ -->
+<section id="inf">
+<div class="inn">
 
   <!-- infection pivot -->
   <div class="pivot">
@@ -1148,8 +1180,8 @@ window.addEventListener('resize', () => { resize(); window.XC_build && window.XC
 let phase = 'intro';
 
 // ── CURSOR ──
-let mx = W/2, my = H/2, cx = mx, cy = my;
-document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+let mx = W/2, my = H/2, cx = mx, cy = my, prevCx = -999, prevCy = -999;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
 
 const curEl = $('cur');
 document.querySelectorAll('button,[role="button"]').forEach(el => {
@@ -1157,13 +1189,17 @@ document.querySelectorAll('button,[role="button"]').forEach(el => {
   el.addEventListener('mouseleave', () => curEl && curEl.classList.remove('hl'));
 });
 
+// ── PAGE VISIBILITY — pause heavy GPU work when tab hidden ──
+let pageHidden = false;
+document.addEventListener('visibilitychange', () => { pageHidden = document.hidden; });
+
 // ── PHASE MANAGEMENT ─────────────────────────────────────────────────
 // Accelerate-out easing on fade-out: decisive, no drag.
 // Decelerate-in easing on fade-in: graceful arrival.
 // Applied via temporary inline transition, cleared after completion.
 // ────────────────────────────────────────────────────────────────────
 const PHASES = {
-  pi:$('pi'), pu:$('pu'), inf:$('inf'), pny:$('pny')
+  pi:$('pi'), pu:$('pu'), frag1:$('frag1'), inf:$('inf'), pny:$('pny')
 };
 
 function only(id) {
@@ -1297,9 +1333,25 @@ $('ent').addEventListener('click', () => {
   }, 300);
 });
 
-// ── FRAGMENT I → INFECTED ──
-$('fi').addEventListener('click', enterInfected);
+// ── FRAGMENT I → THE UNCHAINED ──
+$('fi').addEventListener('click', enterFrag1);
 $('fi').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') enterFrag1();
+});
+
+function enterFrag1() {
+  if (phase !== 'universe') return;
+  phase = 'frag1';
+  fadeOut('pu', () => {
+    PHASES.frag1.scrollTop = 0;
+    fadeIn('frag1', 440);
+    setTimeout(() => { showBack(); triggerFrag1(); }, 500);
+  }, 280);
+}
+
+// ── FRAGMENT II → THE WAR ──
+$('fii').addEventListener('click', enterInfected);
+$('fii').addEventListener('keydown', e => {
   if (e.key === 'Enter' || e.key === ' ') enterInfected();
 });
 
@@ -1309,7 +1361,7 @@ function enterInfected() {
   fadeOut('pu', () => {
     PHASES.inf.scrollTop = 0;
     fadeIn('inf', 440);
-    setTimeout(() => { showBack(); triggerHero(); }, 500);
+    setTimeout(() => { showBack(); triggerInfected(); }, 500);
   }, 280);
 }
 
@@ -1324,10 +1376,16 @@ document.querySelectorAll('.frag.lock').forEach(f => {
 
 // ── RETURN TO UNIVERSE ──
 $('ret').addEventListener('click', goUniverse);
+$('ret1').addEventListener('click', goUniverse);
 $('nyb').addEventListener('click', goUniverse);
 
 function goUniverse() {
-  if (phase === 'infected') {
+  if (phase === 'frag1') {
+    hideBack(() => {
+      phase = 'universe';
+      fadeOut('frag1', () => fadeIn('pu', 420), 280);
+    });
+  } else if (phase === 'infected') {
     hideBack(() => {
       phase = 'universe';
       fadeOut('inf', () => fadeIn('pu', 420), 280);
@@ -1352,7 +1410,8 @@ function reveal(el) {
   el.classList.add('in');
 }
 
-function triggerHero() {
+// Fragment I initial reveal (hero)
+function triggerFrag1() {
   const hero = $('s-hero');
   if (!hero) return;
   const rv  = hero.querySelector('.rv');
@@ -1361,12 +1420,30 @@ function triggerHero() {
   if (rvs) setTimeout(() => reveal(rvs), 240);
 }
 
+// Fragment II initial reveal (infection title)
+function triggerInfected() {
+  const pivot = document.querySelector('#inf .pivot');
+  if (!pivot) return;
+  const rv  = pivot.querySelector('.rv');
+  const rvs = pivot.querySelector('.rvs');
+  if (rv)  reveal(rv);
+  if (rvs) setTimeout(() => reveal(rvs), 240);
+}
+
+// Observer for Fragment I scroll reveals
+const observer1 = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { reveal(e.target); observer1.unobserve(e.target); }
+  });
+}, { root: PHASES.frag1, rootMargin: '0px 0px -28px 0px', threshold: .06 });
+document.querySelectorAll('#frag1 .rv, #frag1 .rvs').forEach(el => observer1.observe(el));
+
+// Observer for Fragment II scroll reveals
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) { reveal(e.target); observer.unobserve(e.target); }
   });
 }, { root: PHASES.inf, rootMargin: '0px 0px -28px 0px', threshold: .06 });
-
 document.querySelectorAll('#inf .rv, #inf .rvs').forEach(el => observer.observe(el));
 
 // ── TITLE CHARACTER REVEAL ──
@@ -1394,16 +1471,23 @@ setTimeout(() => {
 }, 160);
 
 // ── MAIN LOOP ──
+// xcRender cached after XC_build fires — avoids window property lookup every frame.
+let xcRender = null;
 let last = 0;
 (function loop(ts) {
+  requestAnimationFrame(loop);
+  if (pageHidden) return;           // tab hidden — skip GPU work
   const dt = ts - last; last = ts;
   ctx.clearRect(0, 0, W, H);
-  if (window.XC_render) window.XC_render(ts);
-  // Cursor
+  if (xcRender) xcRender(ts);
+  // Cursor — only write DOM when position changed by > 0.3px
   cx += (mx - cx) * .16;
   cy += (my - cy) * .16;
-  if (curEl) { curEl.style.left = cx + 'px'; curEl.style.top = cy + 'px'; }
-  requestAnimationFrame(loop);
+  if (curEl && (Math.abs(cx - prevCx) > 0.3 || Math.abs(cy - prevCy) > 0.3)) {
+    curEl.style.left = cx + 'px';
+    curEl.style.top  = cy + 'px';
+    prevCx = cx; prevCy = cy;
+  }
 })(0);
 
 only('pi');
@@ -1648,6 +1732,12 @@ only('pi');
   let CW = 0, CH = 0;
   let facePaths = null, edges = null;
   let offCanvas = null, offCtx = null;
+  let faceCanvas = null, faceCtx = null;
+
+  // Pre-allocated light structs — no per-frame object creation
+  const L1 = { x:0, y:0, intensity:1.0,  radius:0 };
+  const L2 = { x:0, y:0, intensity:0.58, radius:0 };
+  const LIGHTS = [L1, L2];
 
   // ── Build ─────────────────────────────────────────────────────────
   function build(w, h) {
@@ -1655,16 +1745,14 @@ only('pi');
     const shards = generateShards(w, h);
     edges = extractEdges(shards, w, h);
 
-    // Offscreen canvas — same CSS pixel dimensions as main canvas
-    // Used for the blur passes. Recreated on resize.
-    if (!offCanvas) {
-      offCanvas = document.createElement('canvas');
-      offCtx    = offCanvas.getContext('2d');
-    }
-    offCanvas.width  = CW;
-    offCanvas.height = CH;
+    // Offscreen canvas for blur passes
+    if (!offCanvas)  { offCanvas  = document.createElement('canvas'); offCtx  = offCanvas.getContext('2d'); }
+    // Static face canvas — painted once, reused every frame
+    if (!faceCanvas) { faceCanvas = document.createElement('canvas'); faceCtx = faceCanvas.getContext('2d'); }
+    offCanvas.width   = CW;  offCanvas.height   = CH;
+    faceCanvas.width  = CW;  faceCanvas.height  = CH;
 
-    // Static face gradients — fixed ambient direction, computed once
+    // Build face gradient data and paint to faceCanvas once
     const ALX = Math.cos(Math.PI * 0.28);
     const ALY = Math.sin(Math.PI * 0.28);
     facePaths = shards.map(poly => {
@@ -1676,9 +1764,10 @@ only('pi');
         Math.max(...ys)-Math.min(...ys)
       ) * 0.55;
       const toX    = c.x - CW*0.5, toY = c.y - CH*0.5;
-      const dist   = Math.hypot(toX, toY) || 1;
+      const dist   = Math.sqrt(toX*toX + toY*toY) || 1;
       const facing = Math.max(0, (toX/dist)*ALX + (toY/dist)*ALY) * 0.68 + 0.14;
       const bright = Math.round(10 + facing * 22);
+      // Gradient created on main ctx (coordinates in CSS pixels — same for faceCtx)
       const grad   = ctx.createLinearGradient(
         c.x+ALX*span, c.y+ALY*span,
         c.x-ALX*span, c.y-ALY*span
@@ -1687,50 +1776,54 @@ only('pi');
       grad.addColorStop(1, '#070709');
       return { verts: poly, grad };
     }).filter(Boolean);
+
+    // Paint all faces to faceCanvas — never redrawn unless resize
+    faceCtx.clearRect(0, 0, CW, CH);
+    for (const f of facePaths) {
+      faceCtx.beginPath();
+      faceCtx.moveTo(f.verts[0].x, f.verts[0].y);
+      for (let i = 1; i < f.verts.length; i++) faceCtx.lineTo(f.verts[i].x, f.verts[i].y);
+      faceCtx.closePath();
+      faceCtx.fillStyle = f.grad;
+      faceCtx.fill();
+    }
+
+    // Cache render function in main loop after first successful build
+    window.XC_render = render;
+    xcRender = render;
   }
 
-  // ── Two sub-surface light orbs ────────────────────────────────────
+  // ── Lights — mutates pre-allocated structs, zero allocations ─────
   function getLights(t) {
     const D  = Math.min(CW, CH);
     const a1 = t * 0.0000552;
     const a2 = t * 0.0000769 + 2.14;
-    return [
-      {
-        x: CW*0.5 + Math.cos(a1)*CW*0.28 + Math.cos(a1*1.68)*CW*0.07,
-        y: CH*0.5 + Math.sin(a1)*CH*0.22 + Math.sin(a1*1.38)*CH*0.06,
-        intensity: 1.0,  radius: D * 0.52
-      },
-      {
-        x: CW*0.5 + Math.cos(a2)*CW*0.20 + Math.cos(a2*2.25)*CW*0.05,
-        y: CH*0.5 + Math.sin(a2)*CH*0.16 + Math.sin(a2*1.91)*CH*0.04,
-        intensity: 0.58, radius: D * 0.36
-      }
-    ];
+    L1.x = CW*0.5 + Math.cos(a1)*CW*0.28 + Math.cos(a1*1.68)*CW*0.07;
+    L1.y = CH*0.5 + Math.sin(a1)*CH*0.22 + Math.sin(a1*1.38)*CH*0.06;
+    L1.radius = D * 0.52;
+    L2.x = CW*0.5 + Math.cos(a2)*CW*0.20 + Math.cos(a2*2.25)*CW*0.05;
+    L2.y = CH*0.5 + Math.sin(a2)*CH*0.16 + Math.sin(a2*1.91)*CH*0.04;
+    L2.radius = D * 0.36;
+    return LIGHTS;
   }
 
   // ── Render ────────────────────────────────────────────────────────
   function render(t) {
-    if (!facePaths || !edges || !offCanvas) return;
+    if (!faceCanvas || !edges || !offCanvas) return;
 
-    // ── 1. FACES ─────────────────────────────────────────────────
-    for (const f of facePaths) {
-      ctx.beginPath();
-      ctx.moveTo(f.verts[0].x, f.verts[0].y);
-      for (let i = 1; i < f.verts.length; i++) ctx.lineTo(f.verts[i].x, f.verts[i].y);
-      ctx.closePath();
-      ctx.fillStyle = f.grad;
-      ctx.fill();
-    }
+    // ── 1. FACES — single drawImage of precomputed canvas ─────────
+    ctx.drawImage(faceCanvas, 0, 0);
 
     // ── 2. ILLUMINATE ────────────────────────────────────────────
-    // Proximity² falloff from each orb. Slow sine breathe on top.
-    // Entire crack networks glow together — no angle dependency.
+    // Inlined sqrt — Math.hypot has overflow guards we don't need.
+    // Coordinates are screen pixels, max ~2500, no overflow possible.
     const lights  = getLights(t);
     const breathe = 0.72 + 0.28 * Math.sin(t * 0.00076);
     for (const e of edges) {
       let I = 0;
       for (const L of lights) {
-        const prox = Math.max(0, 1 - Math.hypot(e.mx-L.x, e.my-L.y) / L.radius);
+        const dx = e.mx - L.x, dy = e.my - L.y;
+        const prox = Math.max(0, 1 - Math.sqrt(dx*dx + dy*dy) / L.radius);
         I += prox * prox * L.intensity;
       }
       e._I = Math.min(1, I * breathe);
